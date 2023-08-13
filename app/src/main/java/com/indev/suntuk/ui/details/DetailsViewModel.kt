@@ -90,6 +90,7 @@ class DetailsViewModel(
         data class LoadMoreReply(val commentID: String): UiAction
         object PostComment: UiAction
         object PostReply: UiAction
+        data class ChangeTextContent(val text: String): UiAction
     }
 
     internal sealed interface State {
@@ -354,6 +355,12 @@ class DetailsViewModel(
         }
     }
 
+    private fun changeTextContent(text: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _textContent.update { text }
+        }
+    }
+
     fun onAction(action: UiAction) {
         when (action) {
             UiAction.NavigateBack -> navigateBack()
@@ -368,6 +375,7 @@ class DetailsViewModel(
             is UiAction.LoadMoreReply -> loadMoreReply(action.commentID)
             UiAction.PostComment -> post()
             UiAction.PostReply -> post()
+            is UiAction.ChangeTextContent -> changeTextContent(action.text)
         }
     }
 }
