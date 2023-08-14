@@ -3,12 +3,28 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("io.realm.kotlin")
+    id("com.google.gms.google-services")
     kotlin("kapt")
 }
 
 android {
     namespace = "com.indev.suntuk"
     compileSdk = 33
+
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file(".keystore/Suntuk.jks")
+            storePassword = "androidkeystore"
+            keyAlias = "Suntuk"
+            keyPassword = "androidkeystore"
+        }
+        create("release") {
+            storeFile = file(".keystore/Suntuk.jks")
+            storePassword = "androidkeystore"
+            keyAlias = "Suntuk"
+            keyPassword = "androidkeystore"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.indev.suntuk"
@@ -91,6 +107,12 @@ dependencies {
     implementation("io.realm.kotlin:library-base:1.10.0")
 
     implementation("androidx.work:work-runtime-ktx:2.8.1")
+
+    implementation(platform("com.google.firebase:firebase-bom:32.2.2"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+
+
+    implementation("com.firebaseui:firebase-ui-auth:8.0.2")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
