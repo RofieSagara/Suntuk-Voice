@@ -8,6 +8,7 @@ import dagger.hilt.android.HiltAndroidApp
 class App: Application(), Configuration.Provider {
 
     override fun onCreate() {
+        // TODO: 2021-10-10
         super.onCreate()
     }
 
