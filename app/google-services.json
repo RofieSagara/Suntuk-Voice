@@ -1,0 +1,101 @@
+{
+  "project_info": {
+    "project_number": "1097188672206",
+    "firebase_url": "https://suntuk-3d379.firebaseio.com",
+    "project_id": "suntuk-3d379",
+    "storage_bucket": "suntuk-3d379.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097188672206:android:2cd942ceeaafed55",
+        "android_client_info": {
+          "package_name": "com.indev.suntuk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1097188672206-0rvdeqk637ruf5pbdsfd5nl6qckdcmaj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.indev.suntuk",
+            "certificate_hash": "25a0ad06bbdbf71cca5e7ceb8a42fcbffc72f617"
+          }
+        },
+        {
+          "client_id": "1097188672206-97bh1ir7tore66bocqanb7u1pkn6agm6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.indev.suntuk",
+            "certificate_hash": "64619f834f889d3e8e23bec365ec6637c0b1dc3a"
+          }
+        },
+        {
+          "client_id": "1097188672206-un1q0tskgo6a0qogjhv3p9cun8dakl01.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.indev.suntuk",
+            "certificate_hash": "7928b5cc56de2436d505e4d3ed2472a987c73359"
+          }
+        },
+        {
+          "client_id": "1097188672206-f6be22c5u8gcm5ub5335m2bnmdamn44h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4FcJnQF2X3DhrG5357l-z3Snx2YjPhEU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1097188672206-f6be22c5u8gcm5ub5335m2bnmdamn44h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097188672206:android:217ecb785a1ea18b1b869f",
+        "android_client_info": {
+          "package_name": "com.suntuk.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1097188672206-hs948n08rhbchj5sqljiscphpjheghcf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.suntuk.dev",
+            "certificate_hash": "9cf616204931a06984148329c044a1098b13d444"
+          }
+        },
+        {
+          "client_id": "1097188672206-f6be22c5u8gcm5ub5335m2bnmdamn44h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4FcJnQF2X3DhrG5357l-z3Snx2YjPhEU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1097188672206-f6be22c5u8gcm5ub5335m2bnmdamn44h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
