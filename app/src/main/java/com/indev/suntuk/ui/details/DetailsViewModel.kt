@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ class DetailsViewModel(
             val isLoading: Boolean,
         ) : UiState
         data class StukDetailComment(
+            val textContent: String,
             val error: String,
             val stuk: StukUI?,
             val comment: List<CommentUI>,
@@ -56,6 +58,7 @@ class DetailsViewModel(
             val isAnonymous: Boolean,
         ) : UiState
         data class StukDetailReply(
+            val textContent: String,
             val error: String,
             val stuk: StukUI?,
             val comment: List<CommentUI>,
@@ -80,6 +83,14 @@ class DetailsViewModel(
         data class RequestAddReply(val commentID: String): UiAction
         object CancelAddComment: UiAction
         object CancelAddReply: UiAction
+        object LikeStuk: UiAction
+        data class LikeComment(val commentID: String): UiAction
+        data class LikeReply(val replyID: String): UiAction
+        object LoadMoreComment: UiAction
+        data class LoadMoreReply(val commentID: String): UiAction
+        object PostComment: UiAction
+        object PostReply: UiAction
+        data class ChangeTextContent(val text: String): UiAction
     }
 
     internal sealed interface State {
@@ -119,13 +130,14 @@ class DetailsViewModel(
         }
     }
     private val _stateCommentReply = MutableStateFlow<State>(State.Idle)
+    private val _textContent = MutableStateFlow("")
 
 
     @Suppress("UNCHECKED_CAST")
     val uiState = combine(
         _error, _isLoading, _stukDetail, _commentList,
         _loadingReply, _loadMoreReply, _isLoadingComment, _isLoadMoreComment,
-        _isAnonymous, _selectedComment, _stateCommentReply
+        _isAnonymous, _selectedComment, _stateCommentReply, _textContent
     ) { res ->
 
         val error = res[0] as String
@@ -138,8 +150,10 @@ class DetailsViewModel(
         val isLoadMoreComment = res[7] as Boolean
         val isAnonymous = res[8] as Boolean
         val selectedComment = res[9] as CommentUI?
+        val state = res[10] as State
+        val textContent = res[11] as String
 
-        when (res[10] as State) {
+        when (state) {
             is State.Comment -> {
                 UiState.StukDetailComment(
                     error = error,
@@ -150,7 +164,8 @@ class DetailsViewModel(
                     loadingReply = loadingReply,
                     loadMoreReply = loadMoreReply,
                     isLoading = isLoading,
-                    isAnonymous = isAnonymous
+                    isAnonymous = isAnonymous,
+                    textContent = textContent
                 )
             }
             is State.Reply -> {
@@ -165,7 +180,8 @@ class DetailsViewModel(
                         loadMoreReply = loadMoreReply,
                         isLoading = isLoading,
                         isAnonymous = isAnonymous,
-                        selectedComment = selectedComment
+                        selectedComment = selectedComment,
+                        textContent = textContent
                     )
                 } else {
                     UiState.StukDetail(
@@ -195,9 +211,13 @@ class DetailsViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private fun likeStuk(stukID: String) {
+    private val _uiFlow = MutableStateFlow<UiEvent?>(null)
+    val uiFlow = _uiFlow.shareIn(viewModelScope, SharingStarted.Lazily, 0)
+
+    private fun likeStuk() {
         viewModelScope.launch(Dispatchers.IO) {
-            stukService.likeStuk(stukID)
+            val currentStukID = _stukDetailID.value
+            stukService.likeStuk(currentStukID)
                 .catch { _error.emit(it.message ?: "Unknown error") }
                 .collect()
         }
@@ -205,14 +225,13 @@ class DetailsViewModel(
 
     private fun loadMoreComment() {
         viewModelScope.launch(Dispatchers.IO) {
-            _stukDetailID.value.run {
-                stukService.loadMoreComment(this)
-                    .onEach { _isLoadMoreComment.update { it } }
-                    .onStart { _isLoadingComment.update { true } }
-                    .catch { _error.emit(it.message ?: "Unknown error") }
-                    .onCompletion { _isLoadingComment.update { false } }
-                    .collect()
-            }
+            val currentStukID = _stukDetailID.value
+            stukService.loadMoreComment(currentStukID)
+                .onEach { _isLoadMoreComment.update { it } }
+                .onStart { _isLoadingComment.update { true } }
+                .catch { _error.emit(it.message ?: "Unknown error") }
+                .onCompletion { _isLoadingComment.update { false } }
+                .collect()
         }
     }
 
@@ -298,6 +317,65 @@ class DetailsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _selectedCommentID.update { commentID }
             _stateCommentReply.update { State.Reply(commentID) }
+        }
+    }
+
+    private fun navigateBack() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiFlow.update { UiEvent.NavigateBack }
+        }
+    }
+
+    private fun resetState() {
+        _isLoading.update { false }
+        _stateCommentReply.update { State.Idle }
+        _selectedCommentID.update { "" }
+    }
+
+    private fun post() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val stukID = _stukDetailID.value.ifBlank { null } ?: return@launch
+            val text = _textContent.value.ifBlank { null } ?: return@launch
+            val isAnonymous = _isAnonymous.value
+
+            if (_stateCommentReply.value is State.Comment) {
+                stukService.postCommentText(stukID, text, isAnonymous)
+                    .onStart { _isLoading.update { true } }
+                    .catch { _error.emit(it.message ?: "Unknown error") }
+                    .onCompletion { resetState() }
+                    .collect()
+            } else if (_stateCommentReply.value is State.Reply && _selectedCommentID.value.isNotBlank()){
+                val commentID = _selectedCommentID.value.ifBlank { null } ?: return@launch
+                stukService.postReplyText(commentID, text, isAnonymous)
+                    .onStart { _isLoading.update { true } }
+                    .catch { _error.emit(it.message ?: "Unknown error") }
+                    .onCompletion { resetState() }
+                    .collect()
+            }
+        }
+    }
+
+    private fun changeTextContent(text: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _textContent.update { text }
+        }
+    }
+
+    fun onAction(action: UiAction) {
+        when (action) {
+            UiAction.NavigateBack -> navigateBack()
+            UiAction.RequestAddComment -> requestAddComment()
+            is UiAction.RequestAddReply -> requestAddReply(action.commentID)
+            UiAction.CancelAddComment -> cancelCommentReply()
+            UiAction.CancelAddReply -> cancelCommentReply()
+            is UiAction.LikeComment -> likeComment(action.commentID)
+            is UiAction.LikeReply -> likeReply(action.replyID)
+            is UiAction.LikeStuk -> likeStuk()
+            UiAction.LoadMoreComment -> loadMoreComment()
+            is UiAction.LoadMoreReply -> loadMoreReply(action.commentID)
+            UiAction.PostComment -> post()
+            UiAction.PostReply -> post()
+            is UiAction.ChangeTextContent -> changeTextContent(action.text)
         }
     }
 }

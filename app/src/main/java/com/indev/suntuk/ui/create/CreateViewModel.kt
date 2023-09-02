@@ -61,6 +61,7 @@ class CreateViewModel(
         data class SetVoice(val voicePath: String) : UiAction
         object RemoveVoice : UiAction
         data class SetAnonymous(val isAnonymous: Boolean) : UiAction
+        object Post : UiAction
     }
 
     private val _isAnonymous = MutableStateFlow(false)
@@ -162,6 +163,25 @@ class CreateViewModel(
                 workManager.enqueue(postStukWorker)
                 _uiFlow.update { UiEvent.NavigateBack }
             }
+        }
+    }
+
+    private fun setAnonymous(isAnonymous: Boolean) {
+        viewModelScope.launch {
+            _isAnonymous.update { isAnonymous }
+        }
+    }
+
+    fun onAction(action: UiAction) {
+        when (action) {
+            is UiAction.CreateStuk -> post()
+            is UiAction.ChangeText -> changeText(action.text)
+            is UiAction.AddImage -> addImage(action.imagePath)
+            is UiAction.RemoveImage -> removeImage(action.imagePath)
+            is UiAction.SetVoice -> setVoice(action.voicePath)
+            is UiAction.RemoveVoice -> setVoice("")
+            is UiAction.SetAnonymous -> setAnonymous(action.isAnonymous)
+            is UiAction.Post -> post()
         }
     }
 

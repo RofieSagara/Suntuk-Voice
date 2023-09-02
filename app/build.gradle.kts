@@ -11,6 +11,21 @@ android {
     namespace = "com.indev.suntuk"
     compileSdk = 34
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file(".keystore/Suntuk.jks")
+            storePassword = "androidkeystore"
+            keyAlias = "Suntuk"
+            keyPassword = "androidkeystore"
+        }
+        create("release") {
+            storeFile = file(".keystore/Suntuk.jks")
+            storePassword = "androidkeystore"
+            keyAlias = "Suntuk"
+            keyPassword = "androidkeystore"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.indev.suntuk"
         minSdk = 24
@@ -93,7 +108,6 @@ dependencies {
 
     implementation("androidx.work:work-runtime-ktx:2.8.1")
 
-    // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
