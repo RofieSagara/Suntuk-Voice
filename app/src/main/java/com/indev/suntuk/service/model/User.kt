@@ -1,5 +1,6 @@
 package com.indev.suntuk.service.model
 
+import com.google.firebase.auth.FirebaseAuth
 import com.indev.suntuk.service.local.entity.user.UserEntity
 
 data class User(
@@ -13,8 +14,17 @@ data class User(
     val updatedAt: Long = 0,
 ) {
     companion object {}
+
+    enum class AccountStatus {
+        Registered,
+        NotRegistered,
+    }
 }
 fun User.Companion.fromEntity(userEntity: UserEntity): User {
+    FirebaseAuth.getInstance().addAuthStateListener {
+
+    }
+
     return User(
         id = userEntity.id,
         uid = userEntity.uid,

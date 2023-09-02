@@ -48,7 +48,7 @@ interface StukService {
     fun searchComment(query: String, lastID: String): Flow<List<CommentUI>>
     fun searchComment(query: String): Flow<List<CommentUI>>
 
-    fun postCommentText(stukID: String, text: String): Flow<Unit>
+    fun postCommentText(stukID: String, text: String, isAnonymous: Boolean): Flow<Unit>
     fun deleteComment(commentID: String): Flow<Unit>
 
     //Reply
@@ -60,6 +60,6 @@ interface StukService {
     fun searchReply(query: String, lastID: String): Flow<List<ReplyUI>>
     fun searchReply(query: String): Flow<List<ReplyUI>>
 
-    fun postReplyText(commentID: String, text: String): Flow<Unit>
+    fun postReplyText(commentID: String, text: String, isAnonymous: Boolean): Flow<Unit>
     fun deleteReply(replyID: String): Flow<Unit>
 }

@@ -7,8 +7,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserService {
     fun registerLogin(): Flow<Unit>
-    fun liveUser(): Flow<User>
+    fun liveUser(): Flow<User?>
     fun liveUserCurrency(): Flow<UserCurrency>
+    fun liveUserStatus(): Flow<User.AccountStatus>
     fun updateProfileNickname(profile: String, nickname: String, isCustomNickname: Boolean): Flow<Unit>
     fun syncUser(): Flow<Unit>
     fun blockUser(targetID: String): Flow<Unit>
