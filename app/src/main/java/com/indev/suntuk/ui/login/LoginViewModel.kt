@@ -83,6 +83,7 @@ class LoginViewModel(
     }
 
     private fun successLogin() {
+        // Register or login the user
         viewModelScope.launch(Dispatchers.IO) {
             val currentUser = FirebaseAuth.getInstance().currentUser
             if (currentUser != null) {
