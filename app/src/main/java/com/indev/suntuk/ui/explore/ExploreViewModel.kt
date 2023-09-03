@@ -6,7 +6,6 @@ import com.indev.suntuk.service.StukService
 import com.indev.suntuk.service.model.CommentUI
 import com.indev.suntuk.service.model.ReplyUI
 import com.indev.suntuk.service.model.StukUI
-import com.indev.suntuk.ui.timeline.TimelineViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -58,17 +57,17 @@ class ExploreViewModel(
         object NoData : UiState
     }
 
-    sealed interface UiEvent {
-        data class NavigateToDetail(val stukID: String) : UiEvent
+    sealed interface UiEffect {
+        data class NavigateToDetail(val stukID: String) : UiEffect
     }
 
-    sealed interface UiAction {
-        data class Search(val keyword: String) : UiAction
-        data class SearchStuk(val keyword: String) : UiAction
-        data class SearchComment(val keyword: String) : UiAction
-        data class SearchReply(val keyword: String) : UiAction
-        object LoadMore: UiAction
-        data class NavigateToDetail(val stukID: String) : UiAction
+    sealed interface UiEvent {
+        data class Search(val keyword: String) : UiEvent
+        data class SearchStuk(val keyword: String) : UiEvent
+        data class SearchComment(val keyword: String) : UiEvent
+        data class SearchReply(val keyword: String) : UiEvent
+        object LoadMore: UiEvent
+        data class NavigateToDetail(val stukID: String) : UiEvent
     }
 
     private val _keyword = MutableStateFlow("")
@@ -167,7 +166,7 @@ class ExploreViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _uiFlow = MutableStateFlow<UiEvent?>(null)
+    private val _uiFlow = MutableStateFlow<UiEffect?>(null)
     val uiFlow = _uiFlow.shareIn(viewModelScope, SharingStarted.Lazily, 0)
 
     private fun search(keyword: String) {
@@ -236,28 +235,28 @@ class ExploreViewModel(
 
     private fun navigateToDetail(stukID: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiFlow.update { UiEvent.NavigateToDetail(stukID) }
+            _uiFlow.update { UiEffect.NavigateToDetail(stukID) }
         }
     }
 
-    fun onAction(action: UiAction) {
+    fun onAction(action: UiEvent) {
         when (action) {
-            is UiAction.Search -> {
+            is UiEvent.Search -> {
                 search(action.keyword)
             }
-            is UiAction.SearchStuk -> {
+            is UiEvent.SearchStuk -> {
                 searchStuk(action.keyword)
             }
-            is UiAction.SearchComment -> {
+            is UiEvent.SearchComment -> {
                 searchComment(action.keyword)
             }
-            is UiAction.SearchReply -> {
+            is UiEvent.SearchReply -> {
                 searchReply(action.keyword)
             }
-            UiAction.LoadMore -> {
+            UiEvent.LoadMore -> {
                 loadMore()
             }
-            is UiAction.NavigateToDetail -> {
+            is UiEvent.NavigateToDetail -> {
                 navigateToDetail(action.stukID)
             }
         }

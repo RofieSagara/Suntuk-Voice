@@ -3,13 +3,11 @@ package com.indev.suntuk.ui.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.indev.suntuk.service.StukService
 import com.indev.suntuk.service.model.CommentUI
 import com.indev.suntuk.service.model.StukUI
-import com.indev.suntuk.ui.create.CreateViewModel
 import com.indev.suntuk.utils.work.WorkerPostComment
 import com.indev.suntuk.utils.work.WorkerPostReply
 import kotlinx.coroutines.Dispatchers
@@ -77,25 +75,25 @@ class DetailsViewModel(
         ) : UiState
     }
 
-    sealed interface UiEvent {
-        data class ShowError(val message: String) : UiEvent
-        object NavigateBack : UiEvent
+    sealed interface UiEffect {
+        data class ShowError(val message: String) : UiEffect
+        object NavigateBack : UiEffect
     }
 
-    sealed interface UiAction {
-        object NavigateBack : UiAction
-        object RequestAddComment: UiAction
-        data class RequestAddReply(val commentID: String): UiAction
-        object CancelAddComment: UiAction
-        object CancelAddReply: UiAction
-        object LikeStuk: UiAction
-        data class LikeComment(val commentID: String): UiAction
-        data class LikeReply(val replyID: String): UiAction
-        object LoadMoreComment: UiAction
-        data class LoadMoreReply(val commentID: String): UiAction
-        object PostComment: UiAction
-        object PostReply: UiAction
-        data class ChangeTextContent(val text: String): UiAction
+    sealed interface UiEvent {
+        object NavigateBack : UiEvent
+        object RequestAddComment: UiEvent
+        data class RequestAddReply(val commentID: String): UiEvent
+        object CancelAddComment: UiEvent
+        object CancelAddReply: UiEvent
+        object LikeStuk: UiEvent
+        data class LikeComment(val commentID: String): UiEvent
+        data class LikeReply(val replyID: String): UiEvent
+        object LoadMoreComment: UiEvent
+        data class LoadMoreReply(val commentID: String): UiEvent
+        object PostComment: UiEvent
+        object PostReply: UiEvent
+        data class ChangeTextContent(val text: String): UiEvent
     }
 
     internal sealed interface State {
@@ -216,7 +214,7 @@ class DetailsViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _uiFlow = MutableStateFlow<UiEvent?>(null)
+    private val _uiFlow = MutableStateFlow<UiEffect?>(null)
     val uiFlow = _uiFlow.shareIn(viewModelScope, SharingStarted.Lazily, 0)
 
     private fun likeStuk() {
@@ -327,7 +325,7 @@ class DetailsViewModel(
 
     private fun navigateBack() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiFlow.update { UiEvent.NavigateBack }
+            _uiFlow.update { UiEffect.NavigateBack }
         }
     }
 
@@ -376,21 +374,21 @@ class DetailsViewModel(
         }
     }
 
-    fun onAction(action: UiAction) {
+    fun onAction(action: UiEvent) {
         when (action) {
-            UiAction.NavigateBack -> navigateBack()
-            UiAction.RequestAddComment -> requestAddComment()
-            is UiAction.RequestAddReply -> requestAddReply(action.commentID)
-            UiAction.CancelAddComment -> cancelCommentReply()
-            UiAction.CancelAddReply -> cancelCommentReply()
-            is UiAction.LikeComment -> likeComment(action.commentID)
-            is UiAction.LikeReply -> likeReply(action.replyID)
-            is UiAction.LikeStuk -> likeStuk()
-            UiAction.LoadMoreComment -> loadMoreComment()
-            is UiAction.LoadMoreReply -> loadMoreReply(action.commentID)
-            UiAction.PostComment -> post()
-            UiAction.PostReply -> post()
-            is UiAction.ChangeTextContent -> changeTextContent(action.text)
+            UiEvent.NavigateBack -> navigateBack()
+            UiEvent.RequestAddComment -> requestAddComment()
+            is UiEvent.RequestAddReply -> requestAddReply(action.commentID)
+            UiEvent.CancelAddComment -> cancelCommentReply()
+            UiEvent.CancelAddReply -> cancelCommentReply()
+            is UiEvent.LikeComment -> likeComment(action.commentID)
+            is UiEvent.LikeReply -> likeReply(action.replyID)
+            is UiEvent.LikeStuk -> likeStuk()
+            UiEvent.LoadMoreComment -> loadMoreComment()
+            is UiEvent.LoadMoreReply -> loadMoreReply(action.commentID)
+            UiEvent.PostComment -> post()
+            UiEvent.PostReply -> post()
+            is UiEvent.ChangeTextContent -> changeTextContent(action.text)
         }
     }
 }
