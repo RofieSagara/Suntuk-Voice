@@ -8,12 +8,9 @@ import androidx.work.WorkManager
 import com.indev.suntuk.service.StukService
 import com.indev.suntuk.utils.work.WorkerPostStuk
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -48,20 +45,20 @@ class CreateViewModel(
         )
     }
 
-    sealed interface UiEvent {
-        data class ShowError(val message: String) : UiEvent
-        object NavigateBack : UiEvent
+    sealed interface UiEffect {
+        data class ShowError(val message: String) : UiEffect
+        object NavigateBack : UiEffect
     }
 
-    sealed interface UiAction {
-        object CreateStuk : UiAction
-        data class ChangeText(val text: String) : UiAction
-        data class AddImage(val imagePath: String) : UiAction
-        data class RemoveImage(val imagePath: String) : UiAction
-        data class SetVoice(val voicePath: String) : UiAction
-        object RemoveVoice : UiAction
-        data class SetAnonymous(val isAnonymous: Boolean) : UiAction
-        object Post : UiAction
+    sealed interface UiEvent {
+        object CreateStuk : UiEvent
+        data class ChangeText(val text: String) : UiEvent
+        data class AddImage(val imagePath: String) : UiEvent
+        data class RemoveImage(val imagePath: String) : UiEvent
+        data class SetVoice(val voicePath: String) : UiEvent
+        object RemoveVoice : UiEvent
+        data class SetAnonymous(val isAnonymous: Boolean) : UiEvent
+        object Post : UiEvent
     }
 
     private val _isAnonymous = MutableStateFlow(false)
@@ -109,7 +106,7 @@ class CreateViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _uiFlow = MutableStateFlow<UiEvent?>(null)
+    private val _uiFlow = MutableStateFlow<UiEffect?>(null)
     val uiFlow = _uiFlow.shareIn(viewModelScope, SharingStarted.Lazily, 0)
 
     private fun changeText(text: String) {
@@ -144,12 +141,12 @@ class CreateViewModel(
             val isAnonymous = _isAnonymous.value
 
             if (text.isBlank()) {
-                _uiFlow.update { UiEvent.ShowError("Text is empty") }
+                _uiFlow.update { UiEffect.ShowError("Text is empty") }
                 return@launch
             }
 
             if (text.isBlank() && imagePath.isEmpty() && voicePath.isBlank()) {
-                _uiFlow.update { UiEvent.ShowError("There is no content") }
+                _uiFlow.update { UiEffect.ShowError("There is no content") }
             } else {
                 val params = Data.Builder().apply {
                     putString("text", text)
@@ -161,7 +158,7 @@ class CreateViewModel(
                     .setInputData(params)
                     .build()
                 workManager.enqueue(postStukWorker)
-                _uiFlow.update { UiEvent.NavigateBack }
+                _uiFlow.update { UiEffect.NavigateBack }
             }
         }
     }
@@ -172,16 +169,16 @@ class CreateViewModel(
         }
     }
 
-    fun onAction(action: UiAction) {
+    fun onAction(action: UiEvent) {
         when (action) {
-            is UiAction.CreateStuk -> post()
-            is UiAction.ChangeText -> changeText(action.text)
-            is UiAction.AddImage -> addImage(action.imagePath)
-            is UiAction.RemoveImage -> removeImage(action.imagePath)
-            is UiAction.SetVoice -> setVoice(action.voicePath)
-            is UiAction.RemoveVoice -> setVoice("")
-            is UiAction.SetAnonymous -> setAnonymous(action.isAnonymous)
-            is UiAction.Post -> post()
+            is UiEvent.CreateStuk -> post()
+            is UiEvent.ChangeText -> changeText(action.text)
+            is UiEvent.AddImage -> addImage(action.imagePath)
+            is UiEvent.RemoveImage -> removeImage(action.imagePath)
+            is UiEvent.SetVoice -> setVoice(action.voicePath)
+            is UiEvent.RemoveVoice -> setVoice("")
+            is UiEvent.SetAnonymous -> setAnonymous(action.isAnonymous)
+            is UiEvent.Post -> post()
         }
     }
 

@@ -46,25 +46,25 @@ class TimelineViewModel(
         data class Error(val message: String) : UiState
     }
 
-    sealed interface UiEvent {
-        data class OpenStukDetail(val stukID: String) : UiEvent
-        object NavigateAddStuk : UiEvent
-        data class NavigateComment(val stukID: String): UiEvent
+    sealed interface UiEffect {
+        data class OpenStukDetail(val stukID: String) : UiEffect
+        object NavigateAddStuk : UiEffect
+        data class NavigateComment(val stukID: String): UiEffect
     }
 
-    sealed interface UiAction {
-        object LoadTimeline : UiAction
-        object LoadMoreTimeline : UiAction
-        data class LikeStuk(val stukID: String) : UiAction
-        data class OpenStukDetail(val stukID: String) : UiAction
-        object CloseStukDetail : UiAction
-        object LoadMoreComment : UiAction
-        data class LikeComment(val commentID: String) : UiAction
-        data class LoadReply(val commentID: String) : UiAction
-        data class LoadMoreReply(val commentID: String) : UiAction
-        data class LikeReply(val replyID: String) : UiAction
-        object NavigationAddStuk : UiAction
-        data class NavigationComment(val stukID: String): UiAction
+    sealed interface UiEvent {
+        object LoadTimeline : UiEvent
+        object LoadMoreTimeline : UiEvent
+        data class LikeStuk(val stukID: String) : UiEvent
+        data class OpenStukDetail(val stukID: String) : UiEvent
+        object CloseStukDetail : UiEvent
+        object LoadMoreComment : UiEvent
+        data class LikeComment(val commentID: String) : UiEvent
+        data class LoadReply(val commentID: String) : UiEvent
+        data class LoadMoreReply(val commentID: String) : UiEvent
+        data class LikeReply(val replyID: String) : UiEvent
+        object NavigationAddStuk : UiEvent
+        data class NavigationComment(val stukID: String): UiEvent
     }
 
     private val _error = MutableSharedFlow<String>().apply { onEmpty { emit("") } }
@@ -124,7 +124,7 @@ class TimelineViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _uiFlow = MutableStateFlow<UiEvent?>(null)
+    private val _uiFlow = MutableStateFlow<UiEffect?>(null)
     val uiFlow = _uiFlow.shareIn(viewModelScope, SharingStarted.Lazily, 0)
 
     private fun loadTimeline() {
@@ -252,30 +252,30 @@ class TimelineViewModel(
 
     private fun navigateComment(stukID: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiFlow.emit(UiEvent.NavigateComment(stukID))
+            _uiFlow.emit(UiEffect.NavigateComment(stukID))
         }
     }
 
     private fun navigateAddStuk() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiFlow.emit(UiEvent.NavigateAddStuk)
+            _uiFlow.emit(UiEffect.NavigateAddStuk)
         }
     }
 
-    fun onAction(action: UiAction) {
+    fun onAction(action: UiEvent) {
         when (action) {
-            UiAction.LoadTimeline -> loadTimeline()
-            UiAction.LoadMoreTimeline -> loadMoreTimeline()
-            is UiAction.LikeStuk -> likeStuk(action.stukID)
-            is UiAction.OpenStukDetail -> openStukDetail(action.stukID)
-            is UiAction.CloseStukDetail -> closeStukDetail()
-            UiAction.LoadMoreComment -> loadMoreComment()
-            is UiAction.LikeComment -> likeComment(action.commentID)
-            is UiAction.LikeReply -> likeReply(action.replyID)
-            is UiAction.LoadMoreReply -> loadMoreReply(action.commentID)
-            is UiAction.LoadReply -> loadReply(action.commentID)
-            is UiAction.NavigationComment -> navigateComment(action.stukID)
-            UiAction.NavigationAddStuk -> navigateAddStuk()
+            UiEvent.LoadTimeline -> loadTimeline()
+            UiEvent.LoadMoreTimeline -> loadMoreTimeline()
+            is UiEvent.LikeStuk -> likeStuk(action.stukID)
+            is UiEvent.OpenStukDetail -> openStukDetail(action.stukID)
+            is UiEvent.CloseStukDetail -> closeStukDetail()
+            UiEvent.LoadMoreComment -> loadMoreComment()
+            is UiEvent.LikeComment -> likeComment(action.commentID)
+            is UiEvent.LikeReply -> likeReply(action.replyID)
+            is UiEvent.LoadMoreReply -> loadMoreReply(action.commentID)
+            is UiEvent.LoadReply -> loadReply(action.commentID)
+            is UiEvent.NavigationComment -> navigateComment(action.stukID)
+            UiEvent.NavigationAddStuk -> navigateAddStuk()
         }
     }
 }
