@@ -2,11 +2,16 @@ package com.indev.suntuk.ui.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.indev.suntuk.service.StukService
 import com.indev.suntuk.service.model.CommentUI
 import com.indev.suntuk.service.model.StukUI
 import com.indev.suntuk.ui.create.CreateViewModel
+import com.indev.suntuk.utils.work.WorkerPostComment
+import com.indev.suntuk.utils.work.WorkerPostReply
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -339,18 +344,28 @@ class DetailsViewModel(
             val isAnonymous = _isAnonymous.value
 
             if (_stateCommentReply.value is State.Comment) {
-                stukService.postCommentText(stukID, text, isAnonymous)
-                    .onStart { _isLoading.update { true } }
-                    .catch { _error.emit(it.message ?: "Unknown error") }
-                    .onCompletion { resetState() }
-                    .collect()
+                val params = Data.Builder().apply {
+                    putString("stukID", stukID)
+                    putString("text", text)
+                    putBoolean("isAnonymous", isAnonymous)
+                }.build()
+                val postCommentWorker = OneTimeWorkRequestBuilder<WorkerPostComment>()
+                    .setInputData(params)
+                    .build()
+                workManager.enqueue(postCommentWorker)
+                resetState()
             } else if (_stateCommentReply.value is State.Reply && _selectedCommentID.value.isNotBlank()){
                 val commentID = _selectedCommentID.value.ifBlank { null } ?: return@launch
-                stukService.postReplyText(commentID, text, isAnonymous)
-                    .onStart { _isLoading.update { true } }
-                    .catch { _error.emit(it.message ?: "Unknown error") }
-                    .onCompletion { resetState() }
-                    .collect()
+                val params = Data.Builder().apply {
+                    putString("commentID", commentID)
+                    putString("text", text)
+                    putBoolean("isAnonymous", isAnonymous)
+                }.build()
+                val postReplyWorker = OneTimeWorkRequestBuilder<WorkerPostReply>()
+                    .setInputData(params)
+                    .build()
+                workManager.enqueue(postReplyWorker)
+                resetState()
             }
         }
     }

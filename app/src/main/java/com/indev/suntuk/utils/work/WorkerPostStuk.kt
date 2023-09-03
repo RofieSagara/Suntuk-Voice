@@ -5,8 +5,14 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.indev.suntuk.service.StukService
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onErrorResume
 
 class WorkerPostStuk(context: Context, params: WorkerParameters): CoroutineWorker(context, params) {
 
@@ -18,12 +24,10 @@ class WorkerPostStuk(context: Context, params: WorkerParameters): CoroutineWorke
         val imagePath = inputData.getStringArray("imagePath")?.toList().orEmpty()
         val voicePath = inputData.getString("voicePath").orEmpty()
 
-        return kotlin.runCatching {
-            selectorTypeStuk(text, imagePath, voicePath, isAnonymous)
-                .collect()
-        }.exceptionOrNull()?.let {
-            return Result.failure()
-        } ?: Result.success()
+        return selectorTypeStuk(text, imagePath, voicePath, isAnonymous)
+            .map { Result.success() }
+            .catch { emit(Result.failure()) }
+            .first()
     }
 
     private fun selectorTypeStuk(text: String, imagePath: List<String>, voicePath: String, isAnonymous: Boolean): Flow<Unit> {
