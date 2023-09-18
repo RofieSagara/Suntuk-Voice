@@ -19,8 +19,8 @@ import io.ktor.http.contentType
 
 interface ReplyAPI {
     suspend fun createText(stukID: String, commentID: String, isAnonymous: Boolean, text: String): Res<ReplyServiceCreateTextResponse>
-    suspend fun like(replyID: String)
-    suspend fun delete(replyID: String)
+    suspend fun like(replyID: String): Res<String>
+    suspend fun delete(replyID: String): Res<String>
     suspend fun get(replyID: String): Res<ReplyServiceGetResponse>
     suspend fun fetch(replyID: String, lastID: String): Res<ReplyServiceFetchResponse>
     suspend fun search(lastID: String, keyword: String): Res<ReplyServiceSearchResponse>
@@ -44,22 +44,22 @@ data class IReplyAPI(private val client: HttpClient): ReplyAPI {
        }.body()
     }
 
-    override suspend fun like(replyID: String) {
-        client.post("/reply/like") {
+    override suspend fun like(replyID: String): Res<String> {
+        return client.post("/reply/like") {
             contentType(ContentType.Application.Json)
             setBody(JsonObject().apply {
                 addProperty("reply_id", replyID)
             })
-        }.body<ResOK>()
+        }.body()
     }
 
-    override suspend fun delete(replyID: String) {
-        client.delete("/reply") {
+    override suspend fun delete(replyID: String): Res<String> {
+        return client.delete("/reply") {
             contentType(ContentType.Application.Json)
             setBody(JsonObject().apply {
                 addProperty("reply_id", replyID)
             })
-        }.body<ResOK>()
+        }.body()
     }
 
     override suspend fun get(replyID: String): Res<ReplyServiceGetResponse> {

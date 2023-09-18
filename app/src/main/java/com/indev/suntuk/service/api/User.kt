@@ -29,55 +29,55 @@ type UserService interface {
 }
  */
 interface UserAPI {
-    suspend fun registerUserIfNotExist()
+    suspend fun registerUserIfNotExist(): Res<String>
     suspend fun getUser(): Res<GetUserRes>
-    suspend fun updateProfileNickname(isCustomNickname: Boolean, nickname: String, profile: String)
-    suspend fun blockUser(targetID: String)
-    suspend fun unBlockUser(targetID: String)
+    suspend fun updateProfileNickname(isCustomNickname: Boolean, nickname: String, profile: String): Res<String>
+    suspend fun blockUser(targetID: String): Res<String>
+    suspend fun unBlockUser(targetID: String): Res<String>
     suspend fun fetchBlockUser(): Res<UserServiceFetchBlockUserResponse>
 }
 
 class IUserAPI(private val client: HttpClient): UserAPI {
-    override suspend fun registerUserIfNotExist() {
-        client.post("/user/register").body<ResOK>()
+    override suspend fun registerUserIfNotExist(): Res<String> {
+        return client.post("/user/register").body()
     }
 
     override suspend fun getUser(): Res<GetUserRes> {
        return client.get("/user").body()
     }
 
-    override suspend fun updateProfileNickname(isCustomNickname: Boolean, nickname: String, profile: String) {
+    override suspend fun updateProfileNickname(isCustomNickname: Boolean, nickname: String, profile: String): Res<String>{
         val bodyJson = JsonObject()
         bodyJson.addProperty("is_custom_nickname", isCustomNickname)
         bodyJson.addProperty("nickname", nickname)
         bodyJson.addProperty("profile", profile)
 
-        client.post("/user/update-profile-nickname") {
+        return client.post("/user/update-profile-nickname") {
             contentType(ContentType.Application.Json)
             setBody(bodyJson)
-        }.body<ResOK>()
+        }.body()
     }
 
-    override suspend fun blockUser(targetID: String) {
+    override suspend fun blockUser(targetID: String): Res<String> {
         val bodyJson = JsonObject()
         bodyJson.addProperty("target_id", targetID)
         bodyJson.addProperty("value", true)
 
-        client.post("/user/block") {
+        return client.post("/user/block") {
             contentType(ContentType.Application.Json)
             setBody(bodyJson)
-        }.body<ResOK>()
+        }.body()
     }
 
-    override suspend fun unBlockUser(targetID: String) {
+    override suspend fun unBlockUser(targetID: String): Res<String> {
         val bodyJson = JsonObject()
         bodyJson.addProperty("target_id", targetID)
         bodyJson.addProperty("value", false)
 
-        client.put("/user/block") {
+        return client.put("/user/block") {
             contentType(ContentType.Application.Json)
             setBody(bodyJson)
-        }.body<ResOK>()
+        }.body()
     }
 
     override suspend fun fetchBlockUser(): Res<UserServiceFetchBlockUserResponse> {

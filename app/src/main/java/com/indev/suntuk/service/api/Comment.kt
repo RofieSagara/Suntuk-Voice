@@ -19,8 +19,8 @@ import io.ktor.http.contentType
 
 interface CommentAPI {
     suspend fun createText(stukID: String, isAnonymous: Boolean, text: String): Res<CommentServiceCreateTextResponse>
-    suspend fun like(stukID: String, commentID: String)
-    suspend fun delete(commentID: String)
+    suspend fun like(stukID: String, commentID: String): Res<String>
+    suspend fun delete(commentID: String): Res<String>
     suspend fun get(commentID: String): Res<CommentServiceGetResponse>
     suspend fun fetch(stukID: String, lastID: String): Res<List<CommentServiceFetchResponse>>
     suspend fun search(lastID: String, keyword: String): Res<List<CommentServiceSearchResponse>>
@@ -42,23 +42,23 @@ class IComment(private val client: HttpClient): CommentAPI {
         }.body()
     }
 
-    override suspend fun like(stukID: String, commentID: String) {
-        client.post("/comment/like") {
+    override suspend fun like(stukID: String, commentID: String): Res<String> {
+        return client.post("/comment/like") {
             contentType(ContentType.Application.Json)
             setBody(JsonObject().apply {
                 addProperty("stuk_id", stukID)
                 addProperty("comment_id", commentID)
             })
-        }.body<ResOK>()
+        }.body()
     }
 
-    override suspend fun delete(commentID: String) {
-        client.delete("/comment/delete") {
+    override suspend fun delete(commentID: String): Res<String> {
+        return client.delete("/comment/delete") {
             contentType(ContentType.Application.Json)
             setBody(JsonObject().apply {
                 addProperty("comment_id", commentID)
             })
-        }.body<ResOK>()
+        }.body()
     }
 
     override suspend fun get(commentID: String): Res<CommentServiceGetResponse> {

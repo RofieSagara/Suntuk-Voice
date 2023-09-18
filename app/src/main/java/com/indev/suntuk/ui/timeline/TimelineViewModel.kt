@@ -262,7 +262,7 @@ class TimelineViewModel(
         }
     }
 
-    fun onAction(action: UiEvent) {
+    fun onEvent(action: UiEvent) {
         when (action) {
             UiEvent.LoadTimeline -> loadTimeline()
             UiEvent.LoadMoreTimeline -> loadMoreTimeline()
