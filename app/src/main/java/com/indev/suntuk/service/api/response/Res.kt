@@ -9,3 +9,11 @@ data class Res<T: Any>(
 )
 
 typealias ResOK = Res<String>
+
+class ResponseException(message: String?) : Throwable(message)
+
+fun <T : Any> Res<T>.throwIfError() {
+    if (code != 200) {
+        throw ResponseException(errorMessage)
+    }
+}

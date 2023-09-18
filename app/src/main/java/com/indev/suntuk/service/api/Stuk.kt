@@ -55,11 +55,18 @@ interface StukAPI {
     suspend fun createThreadText(isAnonymous: Boolean, commentActive: Boolean, replyActive: Boolean, chatActive: Boolean, text: String, parentID: String): Res<StukServiceCreateThreadTextResponse>
     suspend fun createThreadImage(isAnonymous: Boolean, commentActive: Boolean, replyActive: Boolean, chatActive: Boolean, text: String, image: List<File>, parentID: String): Res<StukServiceCreateThreadImageResponse>
     suspend fun createThreadVoice(isAnonymous: Boolean, commentActive: Boolean, replyActive: Boolean, chatActive: Boolean, text: String, voice: File, parentID: String): Res<StukServiceCreateThreadVoiceResponse>
-    suspend fun like(stukID: String)
-    suspend fun remove(stukID: String)
+    suspend fun like(stukID: String): Res<String>
+    suspend fun remove(stukID: String): Res<String>
     suspend fun get(id: String): Res<StukServiceGetResponse>
-    suspend fun fetchOwner(lastID: String): Res<StukServiceFetchOwnerResponse>
-    suspend fun fetchTimeline(lastID: String): Res<StukServiceFetchTimelineResponse>
+    suspend fun fetchTimeline(): Res<StukServiceFetchTimelineResponse>
+    suspend fun fetchTimelineOlder(lastID: String): Res<StukServiceFetchTimelineResponse>
+    suspend fun fetchTimelineNewer(lastID: String): Res<StukServiceFetchTimelineResponse>
+    suspend fun fetchFavorite(): Res<StukServiceFetchTimelineResponse>
+    suspend fun fetchFavoriteOlder(lastID: String): Res<StukServiceFetchTimelineResponse>
+    suspend fun fetchFavoriteNewer(lastID: String): Res<StukServiceFetchTimelineResponse>
+    suspend fun fetchOwner(): Res<StukServiceFetchOwnerResponse>
+    suspend fun fetchOwnerOlder(lastID: String): Res<StukServiceFetchOwnerResponse>
+    suspend fun fetchOwnerNewer(lastID: String): Res<StukServiceFetchOwnerResponse>
     suspend fun search(keyword: String, lastID: String): Res<StukServiceSearchResponse>
 }
 
@@ -247,22 +254,22 @@ class IStukAPI(private val client: HttpClient): StukAPI {
         }.body()
     }
 
-    override suspend fun like(stukID: String) {
-        client.put("/stuk/like") {
+    override suspend fun like(stukID: String): Res<String> {
+        return client.put("/stuk/like") {
             contentType(ContentType.Application.Json)
             setBody(JsonObject().apply {
                 addProperty("stuk_id", stukID)
             })
-        }.body<ResOK>()
+        }.body()
     }
 
-    override suspend fun remove(stukID: String) {
-        client.delete("/stuk") {
+    override suspend fun remove(stukID: String): Res<String> {
+        return client.delete("/stuk") {
             contentType(ContentType.Application.Json)
             setBody(JsonObject().apply {
                 addProperty("stuk_id", stukID)
             })
-        }.body<ResOK>()
+        }.body()
     }
 
     override suspend fun get(id: String): Res<StukServiceGetResponse> {
@@ -271,16 +278,48 @@ class IStukAPI(private val client: HttpClient): StukAPI {
         }.body()
     }
 
-    override suspend fun fetchOwner(lastID: String): Res<StukServiceFetchOwnerResponse> {
-        return client.get("/stuk/owner") {
-            parameter("last_id", lastID)
+    override suspend fun fetchTimeline(): Res<StukServiceFetchTimelineResponse> {
+        return client.get("/stuk/timeline") {
+            parameter("type", "init")
         }.body()
     }
 
-    override suspend fun fetchTimeline(lastID: String): Res<StukServiceFetchTimelineResponse> {
+    override suspend fun fetchTimelineOlder(lastID: String): Res<StukServiceFetchTimelineResponse> {
         return client.get("/stuk/timeline") {
             parameter("last_id", lastID)
+            parameter("type", "older")
         }.body()
+    }
+
+    override suspend fun fetchTimelineNewer(lastID: String): Res<StukServiceFetchTimelineResponse> {
+        return client.get("/stuk/timeline") {
+            parameter("last_id", lastID)
+            parameter("type", "newer")
+        }.body()
+    }
+
+    override suspend fun fetchFavorite(): Res<StukServiceFetchTimelineResponse> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun fetchFavoriteOlder(lastID: String): Res<StukServiceFetchTimelineResponse> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun fetchFavoriteNewer(lastID: String): Res<StukServiceFetchTimelineResponse> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun fetchOwner(): Res<StukServiceFetchOwnerResponse> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun fetchOwnerOlder(lastID: String): Res<StukServiceFetchOwnerResponse> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun fetchOwnerNewer(lastID: String): Res<StukServiceFetchOwnerResponse> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun search(keyword: String, lastID: String): Res<StukServiceSearchResponse> {

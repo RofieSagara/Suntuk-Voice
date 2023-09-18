@@ -42,6 +42,9 @@ class StukEntity: RealmObject {
     var reactions: Int = 0
     var settings: StukSettings? = null
     var available: Boolean = true
+    var isTimeline: Boolean = false
+    var isFavorite: Boolean = false
+    var isOwner: Boolean = false
     var createdAt: Long = 0
     var updatedAt: Long = 0
 
