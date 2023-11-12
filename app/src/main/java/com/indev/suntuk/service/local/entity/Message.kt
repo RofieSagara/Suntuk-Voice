@@ -2,6 +2,7 @@ package com.indev.suntuk.service.local.entity
 
 import com.indev.suntuk.service.api.response.MessageResponse
 import com.indev.suntuk.service.api.response.ParentMessageResponse
+import io.realm.kotlin.types.RealmObject
 
 /*
 type Message struct {
@@ -11,22 +12,21 @@ type Message struct {
 	Sticker *ContentSticker `json:"sticker" bson:"sticker"`
 }
  */
-class Message(
-    val text: String,
-    val image: ContentImage,
-    val voice: ContentVoice,
-    val sticker: ContentSticker
-) {
-    companion object {}
+class Message: RealmObject {
+    var text: String = ""
+    var image: ContentImage? = null
+    var voice: ContentVoice? = null
+    var sticker: ContentSticker? = null
+    companion object
 }
 
 fun Message.Companion.fromResponse(messageResponse: MessageResponse): Message {
-    return Message(
-        messageResponse.text,
-        messageResponse.image.let { ContentImage.fromResponse(it) },
-        messageResponse.voice.let { ContentVoice.fromResponse(it) },
-        messageResponse.sticker.let { ContentSticker.fromResponse(it) }
-    )
+    return Message().apply {
+        text = messageResponse.text
+        image = messageResponse.image.let { ContentImage.fromResponse(it) }
+        voice = messageResponse.voice.let { ContentVoice.fromResponse(it) }
+        sticker = messageResponse.sticker.let { ContentSticker.fromResponse(it) }
+    }
 }
 
 /*
@@ -39,23 +39,22 @@ type ParentMessage struct {
 	Status   ParentMessageType  `json:"status" bson:"status"`
 }
  */
-class ParentMessage(
-    val id: String,
-    val userId: String,
-    val profile: String,
-    val nickname: String,
-    val text: String,
-    val status: String
-) {
-    companion object {}
+class ParentMessage: RealmObject {
+    var id: String = ""
+    var userId: String = ""
+    var profile: String = ""
+    var nickname: String = ""
+    var text: String = ""
+    var status: String = ""
+    companion object
 }
 fun ParentMessage.Companion.fromResponse(parentMessageResponse: ParentMessageResponse): ParentMessage {
-    return ParentMessage(
-        parentMessageResponse.id,
-        parentMessageResponse.userID,
-        parentMessageResponse.profile,
-        parentMessageResponse.nickname,
-        parentMessageResponse.text,
-        parentMessageResponse.status
-    )
+    return ParentMessage().apply {
+        id = parentMessageResponse.id
+        userId = parentMessageResponse.userID
+        profile = parentMessageResponse.profile
+        nickname = parentMessageResponse.nickname
+        text = parentMessageResponse.text
+        status = parentMessageResponse.status
+    }
 }
