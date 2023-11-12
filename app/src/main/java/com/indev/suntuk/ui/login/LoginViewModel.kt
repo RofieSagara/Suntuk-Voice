@@ -36,12 +36,15 @@ class LoginViewModel(
     sealed interface UiEvent {
         object LoginWithGoogle: UiEvent
         object CancelLogin: UiEvent
+        object LoginWithGoogleSuccess: UiEvent
     }
 
     sealed interface UiEffect {
         data class LaunchFirebaseUI(val intent: Intent): UiEffect
         object NavigateToTimeline: UiEffect
         object CancelLogin: UiEffect
+        data class Error(val message: String): UiEffect
+        object Nothing: UiEffect
     }
 
     private val _error = MutableSharedFlow<String>().apply { onEmpty { emit("") } }
@@ -56,10 +59,10 @@ class LoginViewModel(
             currentUser != null -> UiState.Success
             else -> UiState.Idle
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, UiState.Idle)
+    }.stateIn(viewModelScope, SharingStarted.Lazily, UiState.Idle)
 
     private val _uiEffect = MutableSharedFlow<UiEffect>()
-    val uiEffect = _uiEffect.shareIn(viewModelScope, SharingStarted.Eagerly, replay = 0)
+    val uiEffect = _uiEffect.shareIn(viewModelScope, SharingStarted.Lazily, 0)
 
     private fun requestLoginWithGoogle() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -91,23 +94,22 @@ class LoginViewModel(
                     .onStart { _isLoading.update { false } }
                     .onEach { _uiEffect.emit(UiEffect.NavigateToTimeline) }
                     .catch {
-                        _error.emit("Failed to login")
-                        _uiEffect.emit(UiEffect.CancelLogin)
+                        _uiEffect.emit(UiEffect.Error(it.message ?: "Failed to register with Google"))
                     }.onCompletion {
                         _isLoading.update { false }
                     }.collect()
             } else {
                 _isLoading.update { false }
-                _error.emit("Failed to login with Google")
-                _uiEffect.emit(UiEffect.CancelLogin)
+                _uiEffect.emit(UiEffect.Error("Failed to login with Google"))
             }
         }
     }
 
-    fun onUiEvent(uiEvent: UiEvent) {
+    fun onEvent(uiEvent: UiEvent) {
         when (uiEvent) {
             is UiEvent.LoginWithGoogle -> requestLoginWithGoogle()
             is UiEvent.CancelLogin -> cancelLogin()
+            is UiEvent.LoginWithGoogleSuccess -> successLogin()
         }
     }
 }
