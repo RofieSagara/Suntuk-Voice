@@ -2,6 +2,7 @@ package com.indev.suntuk.service.local.entity.message
 
 import com.indev.suntuk.service.api.response.GroupChatMemberResponse
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 /*
 type GroupChatMember struct {
@@ -16,7 +17,7 @@ type GroupChatMember struct {
 }
  */
 class GroupChatMemberEntity: RealmObject {
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var groupId: String = ""
     var userId: String = ""
     var profile: String = ""

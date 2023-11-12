@@ -3,7 +3,11 @@ package com.indev.suntuk.service.local.entity.message
 import com.indev.suntuk.service.api.response.PrivateMessageResponse
 import com.indev.suntuk.service.local.entity.Message
 import com.indev.suntuk.service.local.entity.fromResponse
+import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.ext.toRealmList
+import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 /*
 type PrivateMessage struct {
@@ -17,9 +21,9 @@ type PrivateMessage struct {
 }
  */
 class PrivateMessageEntity: RealmObject {
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var chatId: String = ""
-    var users: List<String> = listOf()
+    var users: RealmList<String> = realmListOf()
     var sender: String = ""
     var message: Message? = null
     var status: String = ""
@@ -32,7 +36,7 @@ fun PrivateMessageEntity.Companion.fromResponse(response: PrivateMessageResponse
     val entity = PrivateMessageEntity()
     entity.id = response.id
     entity.chatId = response.chatID
-    entity.users = response.users
+    entity.users = response.users.toRealmList()
     entity.sender = response.sender
     entity.message = Message.fromResponse(response.message)
     entity.status = response.status

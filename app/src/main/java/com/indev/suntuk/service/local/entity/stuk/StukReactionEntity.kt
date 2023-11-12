@@ -2,6 +2,7 @@ package com.indev.suntuk.service.local.entity.stuk
 
 import com.indev.suntuk.service.api.response.StukReactionResponse
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 /*
 type StukReaction struct {
@@ -15,7 +16,7 @@ type StukReaction struct {
 }
  */
 class StukReactionEntity: RealmObject {
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var stukId: String = ""
     var userId: String = ""
     var reactionId: String = ""

@@ -2,6 +2,7 @@ package com.indev.suntuk.service.local.entity.comment
 
 import com.indev.suntuk.service.api.response.CommentLikeResponse
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 /*
 type CommentLike struct {
@@ -13,7 +14,7 @@ type CommentLike struct {
 }
  */
 class CommentLikeEntity : RealmObject {
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var commentId: String = ""
     var userId: String = ""
     var available: Boolean = false

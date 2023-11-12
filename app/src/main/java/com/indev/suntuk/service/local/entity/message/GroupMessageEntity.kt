@@ -4,7 +4,11 @@ import com.indev.suntuk.service.api.response.GroupMessageResponse
 import com.indev.suntuk.service.local.entity.Message
 import com.indev.suntuk.service.local.entity.ParentMessage
 import com.indev.suntuk.service.local.entity.fromResponse
+import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.ext.toRealmList
+import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 /*
 type GroupMessage struct {
@@ -22,14 +26,14 @@ type GroupMessage struct {
 }
  */
 class GroupMessageEntity: RealmObject {
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var groupId: String = ""
     var userId: String = ""
     var userProfile: String = ""
     var userNickname: String = ""
     var parentMessage: ParentMessage? = null
     var message: Message? = null
-    var recipients: List<String> = listOf()
+    var recipients: RealmList<String> = realmListOf()
     var isPrivate: Boolean = false
     var status: String = ""
     var createdAt: Long = 0
@@ -47,7 +51,7 @@ fun GroupMessageEntity.Companion.fromResponse(response: GroupMessageResponse): G
     entity.userNickname = response.userNickname
     entity.parentMessage = ParentMessage.fromResponse(response.parentMessage)
     entity.message = Message.fromResponse(response.message)
-    entity.recipients = response.recipients
+    entity.recipients = response.recipients.toRealmList()
     entity.isPrivate = response.isPrivate
     entity.status = response.status
     entity.createdAt = response.log.createdAt

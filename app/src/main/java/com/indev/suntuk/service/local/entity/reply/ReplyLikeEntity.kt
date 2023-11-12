@@ -2,6 +2,7 @@ package com.indev.suntuk.service.local.entity.reply
 
 import com.indev.suntuk.service.api.response.ReplyLikeResponse
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 /*
 type ReplyLike struct {
@@ -13,7 +14,7 @@ type ReplyLike struct {
 }
  */
 class ReplyLikeEntity: RealmObject {
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var replyId: String = ""
     var userId: String = ""
     var available: Boolean = false

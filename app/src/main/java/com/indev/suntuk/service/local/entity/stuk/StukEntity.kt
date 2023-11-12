@@ -27,8 +27,7 @@ type Stuk struct {
 }
  */
 class StukEntity: RealmObject {
-    @PrimaryKey
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var userId: String = ""
     var parentId: String? = null
     var threadId: String = ""

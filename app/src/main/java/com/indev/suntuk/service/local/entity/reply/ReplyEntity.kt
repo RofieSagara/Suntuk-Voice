@@ -4,6 +4,7 @@ import com.indev.suntuk.service.api.response.ReplyResponse
 import com.indev.suntuk.service.local.entity.Content
 import com.indev.suntuk.service.local.entity.fromResponse
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 /*
 type Reply struct {
@@ -22,7 +23,7 @@ type Reply struct {
 }
  */
 class ReplyEntity: RealmObject {
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var stukId: String = ""
     var commentId: String = ""
     var userId: String = ""

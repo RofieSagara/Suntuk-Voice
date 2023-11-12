@@ -2,6 +2,7 @@ package com.indev.suntuk.service.local.entity.stuk
 
 import com.indev.suntuk.service.api.response.StukLikeResponse
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 /*
 type StukLike struct {
@@ -13,7 +14,7 @@ type StukLike struct {
 }
  */
 class StukLikeEntity: RealmObject {
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var stukId: String = ""
     var userId: String = ""
     var available: Boolean = false

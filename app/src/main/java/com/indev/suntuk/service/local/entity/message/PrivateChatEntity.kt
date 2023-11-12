@@ -1,9 +1,10 @@
 package com.indev.suntuk.service.local.entity.message
 
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 class PrivateChatEntity: RealmObject {
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var chatID: String = ""
     var targetId: String = ""
     var profile: String = ""

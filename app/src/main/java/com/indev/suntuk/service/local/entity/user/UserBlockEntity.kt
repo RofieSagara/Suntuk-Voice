@@ -13,8 +13,7 @@ type UserBlock struct {
 }
  */
 class UserBlockEntity: RealmObject {
-    @PrimaryKey
-    var id: String = ""
+    @PrimaryKey var id: String = ""
     var userId: String = ""
     var targetId: String = ""
     var createdAt: Long = 0
