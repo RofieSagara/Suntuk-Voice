@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,10 +67,10 @@ private fun ActionsComment(modifier: Modifier = Modifier) {
             Text(text = "1.2K Likes - 12 Replies", style = MaterialTheme.typography.labelSmall)
             Spacer(modifier = Modifier.weight(1f, true))
             IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.ic_comment), contentDescription = null)
             }
             IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.Favorite, contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.ic_not_favorite), contentDescription = null)
             }
         }
     }
@@ -82,17 +83,17 @@ private fun ActionsReply(modifier: Modifier = Modifier) {
             Text(text = "1.2K Likes", style = MaterialTheme.typography.labelSmall)
             Spacer(modifier = Modifier.weight(1f, true))
             IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.ic_comment), contentDescription = null)
             }
             IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.Favorite, contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.ic_not_favorite), contentDescription = null)
             }
         }
     }
 }
 
 @Composable
-private fun ReplyContent(modifier: Modifier = Modifier) {
+fun ReplyContent(modifier: Modifier = Modifier) {
     Row(modifier = modifier.height(IntrinsicSize.Max)) {
         Box(
             modifier = Modifier
@@ -125,6 +126,30 @@ private fun ReplyContent(modifier: Modifier = Modifier) {
             Text(text = stringResource(id = R.string.lorem_ipsum), style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(4.dp))
             ActionsReply(modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+@Composable
+fun ReplyLoadMore(modifier: Modifier = Modifier) {
+    Row(modifier = modifier.height(IntrinsicSize.Max)) {
+        Box(
+            modifier = Modifier
+                .width(21.dp)
+                .fillMaxHeight(),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(5.dp)
+                    .fillMaxHeight()
+                    .background(color = MaterialTheme.colorScheme.primary)
+            )
+        }
+        Column(modifier = Modifier) {
+            TextButton(onClick = { /*TODO*/ }) {
+                Text(text = "Load more replies", style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
